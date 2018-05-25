@@ -17,6 +17,10 @@
               });
     mQueue.add(request);
 ```
+## 时序图
+
+![uml](http://www.plantuml.com/plantuml/png/bL9DIyD04BtlhyWnETGVK2GKx544AtWFPjHWcesxcvRUH44gABPQfT9IA1OzrLP1UgZYhyac_HUcJJ-IR5IyBJFllPdtTdAKQOGvHHFfK08Jsq2aZ2hjOjE4IbQoe5o0OmSestR00Lb1OMUAYJQoqamdw4UhKzI6jdS8UOFQ6WiUv6VW5h0o9aTfq8H6ggmDbcvO1qYGITLUuUE-TnW9YlFLPlRZ9Lc9umj0RMnHMDiqA0CBICWHokkXYlfBW9gkox5P2afab6RRRVGcvpUJvjZjTX9mmRT8I2QRKSK1rHw_x_FcmAqzyVQ5zt7hzfiYR-4u3wPH0b890iQKBQgo8YsvRlN1_sguhGvASZ9g8duzRAnKK0mGJ1NYnzOABMwPaWT_wyPNQ_dTI--pxetR_c34Nq_HygH4eUaPaNrCYilpaDphkly-YWg8_AHHMoCKvgX8PFxp8-_K-DsGNxtyFt4nth_o2lxen1jNWw_nXsSe1vRk5Crl)
+
 ## 分析
 - Volley.newRequestQueue()方法
 
@@ -187,8 +191,9 @@
     在上一步中，request 根据缓存添加到 mCacheQueue 或 mNetworkQueue 阻塞队列中，这两个阻塞队列是被关联在 CacheDispatcher 和 NetworkDispatcher 中了。
     可以想到这两分发器肯定是阻塞取出请求做处理。
     - CacheDispatcher
+    
         主要看它的 run() 方法
-        ```java
+        ```
         public void run() {
               // 省略部分代码
             while (true) {
@@ -218,6 +223,7 @@
         总结一下,CacheDispatcher 主要是判断缓存是否可用,如果可用直接返回,不用网络请求了,否则,
         会将 request 丢给 mNetworkQueue, 最终是由 NetworkDispatcher 处理的.
     - NetworkDispatcher
+    
     它的 run 方法和上述 CacheDispatcher 类似，只不过是请求网络，再判断是否需要缓存，如果需要则保存，最后回调 mDelivery.
     
 - ExecutorDelivery 是怎么处理响应的
@@ -281,5 +287,5 @@
     打个比方，当有一堆工作来的时候，4个人同时处理，且保证独立，也就是一个工作不会2个人同时做。
     
 - HTTP 响应内容的解析在哪里？
-    在 request 的 parseNetworkResponse 里，比如 StringRequest 就是最简单的。这个方法在 NetworkDispatcher run 处理请求完后调用，并最终传递给 ResponseDelivery ，再到回调
+    在 request 的 parseNetworkResponse 里，比如 StringRequest 就是最简单的。这个方法在 NetworkDispatcher 处理请求完后调用，并最终传递给 ResponseDelivery ，再到回调
     

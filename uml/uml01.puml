@@ -1,0 +1,27 @@
+@startuml
+developer -> Volley: newRequestQueue()
+Volley -> RequestQueue: start()
+RequestQueue -> CacheDispatcher: start()
+RequestQueue -> NetworkDispatcher: start()
+CacheDispatcher -> CacheDispatcher: pending
+NetworkDispatcher -> NetworkDispatcher: pending
+
+developer -> StringRequest: new StringRequest()
+developer -> Response.Listener: new Response.Listener<String>()
+Volley -> RequestQueue: add(StringRequest)
+
+RequestQueue --> CacheDispatcher: 唤醒阻塞
+RequestQueue --> NetworkDispatcher: 唤醒阻塞
+
+CacheDispatcher->CacheDispatcher: 判断是否有缓存
+CacheDispatcher->ResponseDelivery: postResponse() 有缓存则返回
+ResponseDelivery->StringRequest: deliverResponse()
+StringRequest->Response.Listener:onResponse()
+CacheDispatcher->NetworkDispatcher: 没有缓存则进行网络请求
+
+NetworkDispatcher->Network: performRequest() 发起网络请求
+NetworkDispatcher->StringRequest:parseNetworkResponse() 解析数据
+CacheDispatcher->ResponseDelivery: postResponse()
+ResponseDelivery-->Response.Listener:onResponse() 最终回调
+
+@enduml
